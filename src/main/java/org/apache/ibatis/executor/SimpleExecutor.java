@@ -59,7 +59,9 @@ public class SimpleExecutor extends BaseExecutor {
     try {
       Configuration configuration = ms.getConfiguration();
       StatementHandler handler = configuration.newStatementHandler(wrapper, ms, parameter, rowBounds, resultHandler, boundSql);
+      // 创建Statement连接对象
       stmt = prepareStatement(handler, ms.getStatementLog());
+      // 创建完后又把Statement丢给StatementHandler返回List查询结果
       return handler.query(stmt, resultHandler);
     } finally {
       closeStatement(stmt);

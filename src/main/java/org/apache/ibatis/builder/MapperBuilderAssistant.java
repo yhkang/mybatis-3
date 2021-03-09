@@ -241,6 +241,9 @@ public class MapperBuilderAssistant extends BaseBuilder {
     return new Discriminator.Builder(configuration, resultMapping, namespaceDiscriminatorMap).build();
   }
 
+  /**
+   * 生成statement，最后以id为键保存在了Configuration中的一个map变量mappedStatements中
+   */
   public MappedStatement addMappedStatement(
       String id,
       SqlSource sqlSource,

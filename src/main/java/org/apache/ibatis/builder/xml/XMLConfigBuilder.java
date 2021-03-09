@@ -361,9 +361,10 @@ public class XMLConfigBuilder extends BaseBuilder {
     }
   }
 
+  //解析多个Mapper文件
   private void mapperElement(XNode parent) throws Exception {
     if (parent != null) {
-      for (XNode child : parent.getChildren()) {
+      for (XNode child : parent.getChildren()) { // 解析单个XML文件
         if ("package".equals(child.getName())) {
           String mapperPackage = child.getStringAttribute("name");
           configuration.addMappers(mapperPackage);
@@ -375,7 +376,7 @@ public class XMLConfigBuilder extends BaseBuilder {
             ErrorContext.instance().resource(resource);
             try(InputStream inputStream = Resources.getResourceAsStream(resource)) {
               XMLMapperBuilder mapperParser = new XMLMapperBuilder(inputStream, configuration, resource, configuration.getSqlFragments());
-              mapperParser.parse();
+              mapperParser.parse(); // 解析
             }
           } else if (resource == null && url != null && mapperClass == null) {
             ErrorContext.instance().resource(url);
