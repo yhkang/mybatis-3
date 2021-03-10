@@ -676,6 +676,7 @@ public class Configuration {
       executor = new SimpleExecutor(this, transaction);
     }
     if (cacheEnabled) {
+      // 如果二级缓存开关开启的话，是使用CachingExecutor装饰BaseExecutor的子类
       executor = new CachingExecutor(executor);
     }
     executor = (Executor) interceptorChain.pluginAll(executor);

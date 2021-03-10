@@ -113,7 +113,7 @@ public abstract class BaseExecutor implements Executor {
     if (closed) {
       throw new ExecutorException("Executor was closed.");
     }
-    clearLocalCache();
+    clearLocalCache(); // 发生 UPDATE、DELETE、INSERT 操作则会清除一级缓存
     return doUpdate(ms, parameter);
   }
 
@@ -145,7 +145,7 @@ public abstract class BaseExecutor implements Executor {
       throw new ExecutorException("Executor was closed.");
     }
     if (queryStack == 0 && ms.isFlushCacheRequired()) {
-      clearLocalCache();
+      clearLocalCache(); //  XML文件中配置 flushCache =” true“ 属性或者在 @Options 注解中配置是否强制清除一级缓存
     }
     List<E> list;
     try {
@@ -168,7 +168,7 @@ public abstract class BaseExecutor implements Executor {
       deferredLoads.clear();
       if (configuration.getLocalCacheScope() == LocalCacheScope.STATEMENT) {
         // issue #482
-        clearLocalCache();
+        clearLocalCache(); // 如果是STATEMENT级别，每次执行完一条语句清除一级缓存
       }
     }
     return list;
@@ -193,6 +193,9 @@ public abstract class BaseExecutor implements Executor {
     }
   }
 
+  /**
+   * 执行相同的 SQL 、相同的结果集范围和 statementId 通过一定算法生成
+   */
   @Override
   public CacheKey createCacheKey(MappedStatement ms, Object parameterObject, RowBounds rowBounds, BoundSql boundSql) {
     if (closed) {
@@ -240,7 +243,7 @@ public abstract class BaseExecutor implements Executor {
     if (closed) {
       throw new ExecutorException("Cannot commit, transaction is already closed");
     }
-    clearLocalCache();
+    clearLocalCache(); // 事务提交时清除一级缓存，以便sqlSession复用
     flushStatements();
     if (required) {
       transaction.commit();
@@ -251,7 +254,7 @@ public abstract class BaseExecutor implements Executor {
   public void rollback(boolean required) throws SQLException {
     if (!closed) {
       try {
-        clearLocalCache();
+        clearLocalCache(); // 事务回滚时清除一级缓存
         flushStatements(true);
       } finally {
         if (required) {
@@ -329,7 +332,7 @@ public abstract class BaseExecutor implements Executor {
     } finally {
       localCache.removeObject(key);
     }
-    localCache.putObject(key, list);
+    localCache.putObject(key, list); // 写入一级缓存
     if (ms.getStatementType() == StatementType.CALLABLE) {
       localOutputParameterCache.putObject(key, parameter);
     }

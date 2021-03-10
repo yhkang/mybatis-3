@@ -36,11 +36,13 @@ public class TransactionalCacheManager {
   }
 
   public void putObject(Cache cache, CacheKey key, Object value) {
+    // 缓存到entriesToAddOnCommit中，提交时再flush到Mapper的cache中
     getTransactionalCache(cache).putObject(key, value);
   }
 
   public void commit() {
     for (TransactionalCache txCache : transactionalCaches.values()) {
+      // flush到Mapper的cache中
       txCache.commit();
     }
   }

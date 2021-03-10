@@ -78,6 +78,7 @@ public class CachingExecutor implements Executor {
 
   @Override
   public <E> Cursor<E> queryCursor(MappedStatement ms, Object parameter, RowBounds rowBounds) throws SQLException {
+    // 默认的设置中SELECT语句不会刷新缓存，insert/update/delete会刷新缓存
     flushCacheIfRequired(ms);
     return delegate.queryCursor(ms, parameter, rowBounds);
   }
@@ -94,14 +95,16 @@ public class CachingExecutor implements Executor {
       throws SQLException {
     Cache cache = ms.getCache();
     if (cache != null) {
+      // 默认的设置中SELECT语句不会刷新缓存，insert/update/delete会刷新缓存
       flushCacheIfRequired(ms);
       if (ms.isUseCache() && resultHandler == null) {
         ensureNoOutParams(ms, boundSql);
         @SuppressWarnings("unchecked")
-        List<E> list = (List<E>) tcm.getObject(cache, key);
+        List<E> list = (List<E>) tcm.getObject(cache, key); // 查找缓存
         if (list == null) {
           list = delegate.query(ms, parameterObject, rowBounds, resultHandler, key, boundSql);
-          tcm.putObject(cache, key, list); // issue #578 and #116
+          // 缓存
+          tcm.putObject(cache,   key, list); // issue #578 and #116
         }
         return list;
       }
